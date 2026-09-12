@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sorteo - Liga de Estrellas ST</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --navy-blue: #0b1426;
+            --navy-light: #152642;
+            --gold-light: #fbf5b7;
+            --gold-mid: #d4af37;
+            --gold-dark: #aa771c;
+            --white: #ffffff;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background-color: var(--navy-blue);
+            color: var(--white);
+            font-family: 'Montserrat', sans-serif;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            background-image: 
+                radial-gradient(circle at center, rgba(21, 38, 66, 0.8) 0%, rgba(11, 20, 38, 1) 100%),
+                repeating-linear-gradient(45deg, rgba(255,255,255,0.03) 0px, rgba(255,255,255,0.03) 2px, transparent 2px, transparent 20px),
+                repeating-linear-gradient(-45deg, rgba(255,255,255,0.03) 0px, rgba(255,255,255,0.03) 2px, transparent 2px, transparent 20px);
+        }
+
+        .frame { width: 95vw; height: 95vh; border: 2px solid var(--gold-mid); position: relative; padding: 4px; display: flex; flex-direction: column; }
+        .inner-frame { border: 1px solid var(--gold-mid); width: 100%; height: 100%; position: relative; display: flex; flex-direction: column; padding: 20px; }
+        .star { position: absolute; color: var(--gold-mid); font-size: 24px; line-height: 1; }
+        .star.tl { top: -12px; left: -12px; background: var(--navy-blue); padding: 0 5px; }
+        .star.tr { top: -12px; right: -12px; background: var(--navy-blue); padding: 0 5px; }
+        .star.bl { bottom: -12px; left: -12px; background: var(--navy-blue); padding: 0 5px; }
+        .star.br { bottom: -12px; right: -12px; background: var(--navy-blue); padding: 0 5px; }
+
+        .header { text-align: center; margin-bottom: 20px; }
+        .subtitle { font-family: 'Playfair Display', serif; color: var(--gold-mid); font-size: 1.2rem; letter-spacing: 2px; text-transform: uppercase; }
+        .title { font-family: 'Playfair Display', serif; font-size: 3.5rem; font-weight: 900; line-height: 1.1; text-transform: uppercase; background: linear-gradient(to bottom, #ffffff 30%, #a0aabf 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-shadow: 0px 4px 15px rgba(0,0,0,0.5); margin: 5px 0; }
+        .st-text { font-family: 'Playfair Display', serif; font-size: 1.5rem; color: var(--white); letter-spacing: 4px; }
+
+        .content-wrapper { display: flex; flex: 1; gap: 20px; overflow: hidden; }
+        .sorteo-panel { flex: 1; background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(212, 175, 55, 0.3); border-radius: 10px; padding: 20px; display: flex; flex-direction: column; gap: 15px; }
+        .sorteo-panel h3 { color: var(--gold-mid); text-align: center; font-family: 'Playfair Display', serif; font-size: 1.5rem; border-bottom: 1px solid var(--gold-mid); padding-bottom: 10px; margin-bottom: 10px; }
+        
+        .team-row { display: flex; justify-content: space-between; align-items: center; background: rgba(255, 255, 255, 0.05); padding: 8px 15px; border-radius: 5px; border-left: 3px solid var(--gold-mid); }
+        .team-info { display: flex; align-items: center; gap: 12px; }
+        .team-logo { width: 35px; height: 35px; border-radius: 50%; object-fit: contain; background-color: var(--white); border: 1px solid var(--gold-mid); }
+        .team-name { font-weight: 600; font-size: 1.1rem; }
+
+        select { background-color: var(--navy-light); color: var(--gold-light); border: 1px solid var(--gold-mid); padding: 8px; font-family: 'Montserrat', sans-serif; font-weight: bold; border-radius: 4px; outline: none; cursor: pointer; }
+
+        .schedule-panel { flex: 2; display: flex; flex-direction: column; gap: 10px; overflow-y: auto; }
+        .fecha-card { background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(212, 175, 55, 0.3); border-radius: 8px; padding: 15px; }
+        .fecha-title { color: var(--gold-mid); font-family: 'Playfair Display', serif; font-size: 1.2rem; margin-bottom: 10px; display: flex; justify-content: space-between; }
+        .match-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed rgba(255, 255, 255, 0.1); }
+        .match-row:last-child { border-bottom: none; }
+        .team-slot { flex: 1; text-align: center; font-weight: 600; color: #8892b0; transition: color 0.3s, text-shadow 0.3s; }
+        .team-slot.filled { color: var(--white); text-shadow: 0 0 5px rgba(255,255,255,0.3); }
+        .vs { color: var(--gold-mid); font-size: 0.9rem; font-weight: bold; margin: 0 15px; }
+
+        .footer-logos { display: flex; justify-content: center; align-items: center; gap: 30px; margin-top: 20px; padding-top: 15px; border-top: 1px solid rgba(212, 175, 55, 0.3); }
+        .logo-placeholder { width: 60px; height: 60px; border: 1px solid var(--white); border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 0.6rem; text-align: center; color: var(--white); text-transform: uppercase; }
+    </style>
+</head>
+<body>
+    <div class="frame">
+        <div class="inner-frame">
+            <div class="star tl">★</div><div class="star tr">★</div><div class="star bl">★</div><div class="star br">★</div>
+            <div class="header">
+                <h2 class="subtitle">SORTEO OFICIAL DE EQUIPOS</h2>
+                <h1 class="title">LIGA DE<br>ESTRELLAS</h1>
+                <h3 class="st-text">SANTO TOMÁS</h3>
+            </div>
+            <div class="content-wrapper">
+                <div class="sorteo-panel">
+                    <h3>Asignación de Números</h3>
+                    
+                    <div class="team-row">
+                        <div class="team-info">
+                            <img src="data:image/jpeg;base64,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" alt="Favoritos" class="team-logo">
+                            <span class="team-name">Favoritos FC</span>
+                        </div>
+                        <select onchange="assignTeam(this.value, 'Favoritos FC', this)"><option value="">Sortear...</option><option value="1">Equipo 1</option><option value="2">Equipo 2</option><option value="3">Equipo 3</option><option value="4">Equipo 4</option><option value="5">Equipo 5</option><option value="6">Equipo 6</option></select>
+                    </div>
+                    
+                    <div class="team-row">
+                        <div class="team-info">
+                            <img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAoHBwgHBgoICAgLCgoLDhgQDg0NDh0VFhEYIx8lJCIfIiEmKzcvJik0KSEiMEExNDk7Pj4+JS5ESUM8SDc9Pjv/2wBDAQoLCw4NDhwQEBw7KCIoOzs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozv/wAARCAA8ACIDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwDxmiiigAooooAKKKKACvTvCXwx0uXSrXVvFV9PbR3j7be2hUgn3Y4OB+Ax6155pKJJq9mko3I06Bh6jIr3Dx5YyXfh3QJbCXfKpa1aFJthbeuGz3wGUZxz1oAi1/4F6NLYSSaJc3NtdIpKpKwkRz6HjI+ufwrw66tpbK6ktp0KSxMVYe9fR2g+LJr/AMUrpkou4RHEys10FVZdoByoB6kMDkgcfSvGviakK+LpXhAxIu7I6MNzYI/DFAHI0UUUAAJBBBwR0Nek+GvG+kXdulr4gtbcTRqFjnbcoHOchgG2Meh4wR9K82ooA9c1fxj4Y0qBpbGK2u7zcGRkmaYg+m4ou0Hv3PTpXlmoX82pX0l3PtDyHOFGAB6Cq1FABRRRQAUUUUAFFFFABRRRQB//2Q==" alt="Manchester" class="team-logo">
+                            <span class="team-name">Manchester Krispy</span>
+                        </div>
+                        <select onchange="assignTeam(this.value, 'Manchester Krispy', this)"><option value="">Sortear...</option><option value="1">Equipo 1</option><option value="2">Equipo 2</option><option value="3">Equipo 3</option><option value="4">Equipo 4</option><option value="5">Equipo 5</option><option value="6">Equipo 6</option></select>
+                    </div>
+                    
+                    <div class="team-row">
+                        <div class="team-info">
+                            <img src="data:image/jpeg;base64,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" alt="Watones" class="team-logo">
+                            <span class="team-name">Watones KFC</span>
+                        </div>
+                        <select onchange="assignTeam(this.value, 'Watones KFC', this)"><option value="">Sortear...</option><option value="1">Equipo 1</option><option value="2">Equipo 2</option><option value="3">Equipo 3</option><option value="4">Equipo 4</option><option value="5">Equipo 5</option><option value="6">Equipo 6</option></select>
+                    </div>
+                    
+                    <div class="team-row">
+                        <div class="team-info">
+                            <img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAoHBwgHBgoICAgLCgoLDhgQDg0NDh0VFhEYIx8lJCIfIiEmKzcvJik0KSEiMEExNDk7Pj4+JS5ESUM8SDc9Pjv/2wBDAQoLCw4NDhwQEBw7KCIoOzs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozv/wAARCAAhADwDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwDywGnqaiBpwJrYgv2ds91IACFXPLHoP/r1pi2tYAVLAsFzkv8A4VU0e3uLiNkRJXRpFAEYJPJ5xj2xXd6bo+mw2Fq18rieW7WUr5QXCHjOT95BgArjkg1HUZxs1kvlh4HBP93cOfpVAy44ORXT6zo/2W9drOOZ7Z5mMbiIqMHOc9sZHHsa5kvh281Mvk7t3r3oQWIzNg5DEU0SA84FWN0JXPkqfahZIccwL/n8KYjIGaXJ9KaM+9OGfemOx3HhbWbcaJFpPWRpS8i4A5BYj65Bx06gVs3F5esFt2063ligiQQz8k7AWbk7hj5mGcDoPavNIZnglWWNiHXpXS2fixBGRdRtuAPQ4DH8v8+9ZS5k7rYtKLVmbolW2sBd3UC28rDLCKQnIJODz069iOAfWuT1W6ivtVuLm3yYpGBUlcZ4APGT3zTdR1qfU22spSLP3fWqYYDpn8qcFK3vCla+hISc8DFC7sc/ypA59/yp4fjpVkmUvWn0UUAOWndxRRTAkFSjpRRQIWg9aKKBn//Z" alt="Primos" class="team-logo">
+                            <span class="team-name">Primos FC</span>
+                        </div>
+                        <select onchange="assignTeam(this.value, 'Primos FC', this)"><option value="">Sortear...</option><option value="1">Equipo 1</option><option value="2">Equipo 2</option><option value="3">Equipo 3</option><option value="4">Equipo 4</option><option value="5">Equipo 5</option><option value="6">Equipo 6</option></select>
+                    </div>
+                    
+                    <div class="team-row">
+                        <div class="team-info">
+                            <img src="data:image/jpeg;base64,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" alt="Kinenchester" class="team-logo">
+                            <span class="team-name">Kinenchester</span>
+                        </div>
+                        <select onchange="assignTeam(this.value, 'Kinenchester', this)"><option value="">Sortear...</option><option value="1">Equipo 1</option><option value="2">Equipo 2</option><option value="3">Equipo 3</option><option value="4">Equipo 4</option><option value="5">Equipo 5</option><option value="6">Equipo 6</option></select>
+                    </div>
+                    
+                    <div class="team-row">
+                        <div class="team-info">
+                            <img src="https://via.placeholder.com/40/0b1426/d4af37?text=UST" alt="Union" class="team-logo">
+                            <span class="team-name">Union ST</span>
+                        </div>
+                        <select onchange="assignTeam(this.value, 'Union ST', this)"><option value="">Sortear...</option><option value="1">Equipo 1</option><option value="2">Equipo 2</option><option value="3">Equipo 3</option><option value="4">Equipo 4</option><option value="5">Equipo 5</option><option value="6">Equipo 6</option></select>
+                    </div>
+                </div>
+
+                <div class="schedule-panel">
+                    <div class="fecha-card"><div class="fecha-title"><span>FECHA 1</span> <span>27 de Septiembre</span></div><div class="match-row"><span class="team-slot pos-1">Equipo 1</span> <span class="vs">VS</span> <span class="team-slot pos-6">Equipo 6</span></div><div class="match-row"><span class="team-slot pos-2">Equipo 2</span> <span class="vs">VS</span> <span class="team-slot pos-5">Equipo 5</span></div><div class="match-row"><span class="team-slot pos-3">Equipo 3</span> <span class="vs">VS</span> <span class="team-slot pos-4">Equipo 4</span></div></div>
+                    <div class="fecha-card"><div class="fecha-title"><span>FECHA 2</span> <span>4 de Octubre</span></div><div class="match-row"><span class="team-slot pos-6">Equipo 6</span> <span class="vs">VS</span> <span class="team-slot pos-4">Equipo 4</span></div><div class="match-row"><span class="team-slot pos-5">Equipo 5</span> <span class="vs">VS</span> <span class="team-slot pos-3">Equipo 3</span></div><div class="match-row"><span class="team-slot pos-1">Equipo 1</span> <span class="vs">VS</span> <span class="team-slot pos-2">Equipo 2</span></div></div>
+                    <div class="fecha-card"><div class="fecha-title"><span>FECHA 3</span> <span>11 de Octubre</span></div><div class="match-row"><span class="team-slot pos-2">Equipo 2</span> <span class="vs">VS</span> <span class="team-slot pos-6">Equipo 6</span></div><div class="match-row"><span class="team-slot pos-3">Equipo 3</span> <span class="vs">VS</span> <span class="team-slot pos-1">Equipo 1</span></div><div class="match-row"><span class="team-slot pos-4">Equipo 4</span> <span class="vs">VS</span> <span class="team-slot pos-5">Equipo 5</span></div></div>
+                    <div class="fecha-card"><div class="fecha-title"><span>FECHA 4</span> <span>18 de Octubre</span></div><div class="match-row"><span class="team-slot pos-6">Equipo 6</span> <span class="vs">VS</span> <span class="team-slot pos-5">Equipo 5</span></div><div class="match-row"><span class="team-slot pos-1">Equipo 1</span> <span class="vs">VS</span> <span class="team-slot pos-4">Equipo 4</span></div><div class="match-row"><span class="team-slot pos-2">Equipo 2</span> <span class="vs">VS</span> <span class="team-slot pos-3">Equipo 3</span></div></div>
+                    <div class="fecha-card"><div class="fecha-title"><span>FECHA 5</span> <span>25 de Octubre</span></div><div class="match-row"><span class="team-slot pos-3">Equipo 3</span> <span class="vs">VS</span> <span class="team-slot pos-6">Equipo 6</span></div><div class="match-row"><span class="team-slot pos-4">Equipo 4</span> <span class="vs">VS</span> <span class="team-slot pos-2">Equipo 2</span></div><div class="match-row"><span class="team-slot pos-5">Equipo 5</span> <span class="vs">VS</span> <span class="team-slot pos-1">Equipo 1</span></div></div>
+                </div>
+            </div>
+
+            <div class="footer-logos">
+                <div class="logo-placeholder" style="border-radius: 10px;">CEICO</div>
+                <div class="logo-placeholder" style="border: none; border-bottom: 2px solid var(--white); border-top: 2px solid var(--white); border-radius: 0;">La Pulpería</div>
+                <div class="logo-placeholder" style="border-radius: 5px;">ARENA</div>
+                <div class="logo-placeholder">Santo Tomás</div>
+                <div class="logo-placeholder">My Happy Place</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let assignments = {};
+        function assignTeam(posNum, teamName, selectElement) {
+            for (let key in assignments) {
+                if (assignments[key] === teamName) {
+                    delete assignments[key];
+                    resetSlots(key);
+                }
+            }
+            if (posNum !== "") {
+                assignments[posNum] = teamName;
+                updateSlots(posNum, teamName);
+                selectElement.style.borderColor = "var(--gold-mid)";
+                selectElement.style.color = "var(--white)";
+            } else { selectElement.style.color = "var(--gold-light)"; }
+        }
+        function updateSlots(posNum, teamName) {
+            const slots = document.querySelectorAll('.pos-' + posNum);
+            slots.forEach(slot => { slot.textContent = teamName; slot.classList.add('filled'); });
+        }
+        function resetSlots(posNum) {
+            const slots = document.querySelectorAll('.pos-' + posNum);
+            slots.forEach(slot => { slot.textContent = 'Equipo ' + posNum; slot.classList.remove('filled'); });
+        }
+    </script>
+</body>
+</html>
